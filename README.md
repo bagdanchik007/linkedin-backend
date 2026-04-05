@@ -1,4 +1,4 @@
-# 🚀 DevConnect — LinkedIn-ähnliches Backend
+# 🚀 Linkedin - FullStack Andwendungsprogramm Frontend + Backend 
 
 > Ein LinkedIn-Klon für Entwickler. Plattform für Networking, Jobsuche und Bewerbungen.  
 > Gebaut mit FastAPI, PostgreSQL, Redis und Celery.
