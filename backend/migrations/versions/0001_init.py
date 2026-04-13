@@ -15,7 +15,7 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # --- users ---
+    # --- Benutzer ---
     op.create_table(
         "users",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
@@ -26,7 +26,7 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
 
-    # --- refresh_tokens ---
+    # --- Refresh Tokens ---
     op.create_table(
         "refresh_tokens",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
@@ -37,7 +37,7 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
 
-    # --- profiles ---
+    # --- Profile ---
     op.create_table(
         "profiles",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
@@ -52,7 +52,7 @@ def upgrade() -> None:
         sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
 
-    # --- jobs ---
+    # --- Stellenangebote ---
     op.create_table(
         "jobs",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
@@ -68,7 +68,7 @@ def upgrade() -> None:
         sa.Column("search_vector", postgresql.TSVECTOR(), nullable=True),
     )
 
-    # GIN index für die Volltextsuche auf title, description und company
+    # GIN-Index für schnelle Volltextsuche
     op.create_index(
         "jobs_search_idx",
         "jobs",
@@ -76,7 +76,7 @@ def upgrade() -> None:
         postgresql_using="gin",
     )
 
-    # ein Trigger aktualisiert search_vector mit dem INSERT / UPDATE
+    # Trigger: aktualisiert search_vector automatisch bei INSERT / UPDATE
     op.execute("""
         CREATE OR REPLACE FUNCTION jobs_search_vector_update() RETURNS trigger AS $$
         BEGIN
@@ -95,10 +95,39 @@ def upgrade() -> None:
         FOR EACH ROW EXECUTE FUNCTION jobs_search_vector_update();
     """)
 
+    # --- Bewerbungen ---
+    op.create_table(
+        "applications",
+        sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
+        sa.Column("user_id", postgresql.UUID(as_uuid=True),
+                  sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+        sa.Column("job_id", postgresql.UUID(as_uuid=True),
+                  sa.ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False),
+        sa.Column("status", sa.String(20), server_default="pending"),
+        sa.Column("cover_note", sa.Text(), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
+        sa.UniqueConstraint("user_id", "job_id", name="uq_application_user_job"),
+    )
+
+    # --- Verbindungen ---
+    op.create_table(
+        "connections",
+        sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
+        sa.Column("requester_id", postgresql.UUID(as_uuid=True),
+                  sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+        sa.Column("receiver_id", postgresql.UUID(as_uuid=True),
+                  sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+        sa.Column("status", sa.String(20), server_default="pending"),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
+        sa.UniqueConstraint("requester_id", "receiver_id", name="uq_connection_pair"),
+    )
+
 
 def downgrade() -> None:
     op.execute("DROP TRIGGER IF EXISTS jobs_search_vector_trigger ON jobs")
     op.execute("DROP FUNCTION IF EXISTS jobs_search_vector_update")
+    op.drop_table("connections")
+    op.drop_table("applications")
     op.drop_index("jobs_search_idx", table_name="jobs")
     op.drop_table("jobs")
     op.drop_table("profiles")

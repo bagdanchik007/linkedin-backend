@@ -35,29 +35,29 @@ async def get_jobs(
 ) -> tuple[list[Job], int]:
     query = select(Job).where(Job.is_active == True)
 
-    # der Filter für die Firma (case-insensitive, Teilstring)
+    # Filter nach Unternehmen
     if company:
         query = query.where(Job.company.ilike(f"%{company}%"))
 
-    # der Filter für die Location
+    # Filter nach Standort
     if location:
         query = query.where(Job.location.ilike(f"%{location}%"))
 
-    # der Filter für die Fähigkeiten (PostgreSQL array contains)
+    # Filter nach Skill (PostgreSQL Array enthält)
     if skill:
         query = query.where(Job.skills_required.any(skill))
 
-    # der Volltextfilter (search_vector @@ plainto_tsquery)
+    # Volltextsuche (Tag 6)
     if search:
         query = query.where(
             Job.search_vector.op("@@")(func.plainto_tsquery("english", search))
         )
 
-    # rechnen die Gesamtzahl der Ergebnisse für die Paginierung
+    # Gesamtanzahl für Paginierung zählen
     count_query = select(func.count()).select_from(query.subquery())
     total = (await db.execute(count_query)).scalar_one()
 
-    # erhalten die Seite
+    # Aktuelle Seite abrufen
     query = query.order_by(Job.created_at.desc()).limit(limit).offset(offset)
     result = await db.execute(query)
     items = result.scalars().all()
@@ -70,9 +70,9 @@ async def get_recommended_jobs(
     user_skills: list[str],
     limit: int = 10,
 ) -> list[Job]:
-    """Finden Sie Stellen, bei denen mindestens einer der Fähigkeiten mit dem Profil des Benutzers übereinstimmt."""
+    """Stellen, bei denen mindestens ein Skill mit dem Profil des Benutzers übereinstimmt."""
     if not user_skills:
-        # wenn keine Fähigkeiten vorhanden sind — einfach die letzten Stellen
+        # Keine Skills vorhanden — einfach neueste Stellen zurückgeben
         result = await db.execute(
             select(Job)
             .where(Job.is_active == True)
@@ -81,7 +81,7 @@ async def get_recommended_jobs(
         )
         return list(result.scalars().all())
 
-    # bauen die Bedingungen für die Übereinstimmung der Fähigkeiten 
+    # Stellen suchen wo skills_required sich mit user_skills überschneidet
     conditions = [Job.skills_required.any(skill) for skill in user_skills]
     result = await db.execute(
         select(Job)

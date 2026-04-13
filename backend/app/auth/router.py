@@ -62,7 +62,7 @@ async def refresh(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
             detail="Invalid or expired refresh token",
         )
 
-    # проверяем что токен есть в БД
+    # Prüfen ob Token in der Datenbank vorhanden ist
     db_token = await service.get_refresh_token(db, body.refresh_token)
     if not db_token:
         raise HTTPException(
@@ -72,7 +72,7 @@ async def refresh(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
 
     user_id = payload.get("sub")
 
-    # ротация токена: старый удаляем, новый сохраняем
+    # Token-Rotation: alten löschen, neuen speichern
     await service.delete_refresh_token(db, body.refresh_token)
     new_access = service.create_access_token(user_id)
     new_refresh = service.create_refresh_token(user_id)

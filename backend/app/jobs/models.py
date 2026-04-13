@@ -28,5 +28,5 @@ class Job(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
-    # für den Volltextindex (Titel + Beschreibung)
+    # Für Volltextsuche — wird durch Datenbank-Trigger befüllt (Tag 6)
     search_vector: Mapped[str | None] = mapped_column(TSVECTOR, nullable=True)
