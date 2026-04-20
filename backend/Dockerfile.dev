@@ -11,4 +11,5 @@ RUN poetry config virtualenvs.create false \
 COPY . .
 
 # Mit --reload für automatisches Neuladen bei Codeänderungen
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 2"]
