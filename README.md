@@ -1,4 +1,4 @@
-# 🚀 DevConnect — LinkedIn Fullstack-Anwendung
+# 🚀 DevConnect — LinkedIn Backend-Anwendung
 
 > Ein LinkedIn-Klon als vollständige Fullstack-Anwendung.  
 > **Backend:** FastAPI · PostgreSQL · Redis · Celery  
