@@ -5,7 +5,7 @@ from app.core.config import settings
 
 engine = create_async_engine(
     settings.DATABASE_URL,
-    echo=True,  # выключи в проде
+    echo=True,  # In Produktion deaktivieren
     pool_pre_ping=True,
 )
 

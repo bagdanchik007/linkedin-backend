@@ -14,7 +14,7 @@ async def test_health():
 @pytest.mark.asyncio
 async def test_register_and_login():
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        # Anmeldung
+        # Register
         res = await client.post("/auth/register", json={
             "email": "test@example.com",
             "password": "secret123"

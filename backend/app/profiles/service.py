@@ -32,7 +32,7 @@ async def update_profile(
     update_data = data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         if field == "experience" and value is not None:
-            # konvertieren von ExperienceItem-Objekten in dicts für die JSONB-Spalte
+            # Pydantic-Objekte in dict umwandeln für JSONB
             value = [item.model_dump() for item in value]
         setattr(profile, field, value)
 

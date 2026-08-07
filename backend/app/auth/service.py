@@ -12,7 +12,7 @@ from app.auth.models import RefreshToken
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-# ---------- Password ----------
+# ---------- Passwort ----------
 
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
@@ -53,7 +53,7 @@ def decode_token(token: str) -> dict:
         return {}
 
 
-# ---------- DB helpers ----------
+# ---------- Datenbankhelfer ----------
 
 async def get_user_by_email(db: AsyncSession, email: str) -> User | None:
     result = await db.execute(select(User).where(User.email == email))
@@ -68,7 +68,7 @@ async def create_user(db: AsyncSession, email: str, password: str) -> User:
     return user
 
 
-# ---------- Refresh Token DB ----------
+# ---------- Refresh Token Datenbank ----------
 
 async def save_refresh_token(db: AsyncSession, user_id: str, token: str) -> None:
     expires_at = datetime.now(timezone.utc) + timedelta(

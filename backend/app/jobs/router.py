@@ -19,7 +19,7 @@ router = APIRouter(prefix="/jobs", tags=["Jobs"])
 
 
 def require_recruiter(current_user: User = Depends(get_current_user)) -> User:
-    """Prüfen, ob der aktuelle Benutzer ein Recruiter ist."""
+    """Nur Recruiter dürfen Stellenangebote erstellen."""
     if current_user.role != "recruiter":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
