@@ -6,6 +6,7 @@ from app.profiles.router import router as profiles_router
 from app.jobs.router import router as jobs_router
 from app.applications.router import router as applications_router
 from app.connections.router import router as connections_router
+from app.notifications.router import router as notifications_router
 
 app = FastAPI(
     title="DevConnect API",
@@ -19,6 +20,7 @@ app.include_router(profiles_router)
 app.include_router(jobs_router)
 app.include_router(applications_router)
 app.include_router(connections_router)
+app.include_router(notifications_router)
 
 
 @app.get("/health")

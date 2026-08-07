@@ -122,10 +122,23 @@ def upgrade() -> None:
         sa.UniqueConstraint("requester_id", "receiver_id", name="uq_connection_pair"),
     )
 
+    # --- Benachrichtigungen ---
+    op.create_table(
+        "notifications",
+        sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
+        sa.Column("user_id", postgresql.UUID(as_uuid=True),
+                  sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+        sa.Column("type", sa.String(50), nullable=False),
+        sa.Column("payload", postgresql.JSONB(), nullable=True),
+        sa.Column("is_read", sa.Boolean(), server_default="false"),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
+    )
+
 
 def downgrade() -> None:
     op.execute("DROP TRIGGER IF EXISTS jobs_search_vector_trigger ON jobs")
     op.execute("DROP FUNCTION IF EXISTS jobs_search_vector_update")
+    op.drop_table("notifications")
     op.drop_table("connections")
     op.drop_table("applications")
     op.drop_index("jobs_search_idx", table_name="jobs")

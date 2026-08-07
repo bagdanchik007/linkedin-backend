@@ -87,4 +87,15 @@ async def update_status(
     if not job or job.author_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Kein Zugriff")
 
-    return await service.update_application_status(db, application, body)
+    updated = await service.update_application_status(db, application, body)
+
+    # Celery Task: Bewerber über Statusänderung benachrichtigen
+    from app.notifications.tasks import notify_application_update
+    job = await get_job_by_id(db, application.job_id)
+    notify_application_update.delay(
+        str(application.user_id),
+        job.title if job else "Unbekannte Stelle",
+        body.status,
+    )
+
+    return updated

@@ -15,8 +15,9 @@ from app.users.models import User                    # noqa: F401
 from app.auth.models import RefreshToken             # noqa: F401
 from app.profiles.models import Profile              # noqa: F401
 from app.jobs.models import Job                      # noqa: F401
-from app.applications.models import Application      # noqa: F401
-from app.connections.models import Connection        # noqa: F401
+from app.applications.models import Application # noqa: F401
+from app.connections.models import Connection   # noqa: F401
+from app.notifications.models import Notification # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)

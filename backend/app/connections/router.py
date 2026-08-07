@@ -46,7 +46,17 @@ async def send_request(
             detail="Verbindung existiert bereits",
         )
 
-    return await service.send_request(db, current_user.id, user_id)
+    connection = await service.send_request(db, current_user.id, user_id)
+
+    # Celery Task: Empfänger im Hintergrund benachrichtigen
+    from app.notifications.tasks import notify_connection_request
+    notify_connection_request.delay(
+        str(user_id),
+        str(current_user.id),
+        current_user.email,
+    )
+
+    return connection
 
 
 @router.patch("/{connection_id}/accept", response_model=ConnectionResponse)
