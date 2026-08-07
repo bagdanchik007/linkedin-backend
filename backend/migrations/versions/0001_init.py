@@ -2,7 +2,7 @@
 
 Revision ID: 0001
 Revises:
-Create Date: 2026-04-12
+Create Date: 2026-04-20
 """
 from alembic import op
 import sqlalchemy as sa
@@ -16,8 +16,7 @@ depends_on = None
 
 def upgrade() -> None:
     # --- Benutzer ---
-    op.create_table(
-        "users",
+    op.create_table("users",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column("email", sa.String(255), unique=True, nullable=False),
         sa.Column("password", sa.String(255), nullable=False),
@@ -27,22 +26,18 @@ def upgrade() -> None:
     )
 
     # --- Refresh Tokens ---
-    op.create_table(
-        "refresh_tokens",
+    op.create_table("refresh_tokens",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("user_id", postgresql.UUID(as_uuid=True),
-                  sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+        sa.Column("user_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
         sa.Column("token", sa.Text(), nullable=False, unique=True),
         sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
 
     # --- Profile ---
-    op.create_table(
-        "profiles",
+    op.create_table("profiles",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("user_id", postgresql.UUID(as_uuid=True),
-                  sa.ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False),
+        sa.Column("user_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False),
         sa.Column("full_name", sa.String(255), nullable=True),
         sa.Column("bio", sa.Text(), nullable=True),
         sa.Column("location", sa.String(255), nullable=True),
@@ -53,11 +48,9 @@ def upgrade() -> None:
     )
 
     # --- Stellenangebote ---
-    op.create_table(
-        "jobs",
+    op.create_table("jobs",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("author_id", postgresql.UUID(as_uuid=True),
-                  sa.ForeignKey("users.id", ondelete="SET NULL"), nullable=True),
+        sa.Column("author_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("users.id", ondelete="SET NULL"), nullable=True),
         sa.Column("title", sa.String(255), nullable=False),
         sa.Column("description", sa.Text(), nullable=True),
         sa.Column("company", sa.String(255), nullable=True),
@@ -69,12 +62,7 @@ def upgrade() -> None:
     )
 
     # GIN-Index für schnelle Volltextsuche
-    op.create_index(
-        "jobs_search_idx",
-        "jobs",
-        ["search_vector"],
-        postgresql_using="gin",
-    )
+    op.create_index("jobs_search_idx", "jobs", ["search_vector"], postgresql_using="gin")
 
     # Trigger: aktualisiert search_vector automatisch bei INSERT / UPDATE
     op.execute("""
@@ -96,13 +84,10 @@ def upgrade() -> None:
     """)
 
     # --- Bewerbungen ---
-    op.create_table(
-        "applications",
+    op.create_table("applications",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("user_id", postgresql.UUID(as_uuid=True),
-                  sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
-        sa.Column("job_id", postgresql.UUID(as_uuid=True),
-                  sa.ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False),
+        sa.Column("user_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+        sa.Column("job_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False),
         sa.Column("status", sa.String(20), server_default="pending"),
         sa.Column("cover_note", sa.Text(), nullable=True),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
@@ -110,24 +95,19 @@ def upgrade() -> None:
     )
 
     # --- Verbindungen ---
-    op.create_table(
-        "connections",
+    op.create_table("connections",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("requester_id", postgresql.UUID(as_uuid=True),
-                  sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
-        sa.Column("receiver_id", postgresql.UUID(as_uuid=True),
-                  sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+        sa.Column("requester_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+        sa.Column("receiver_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
         sa.Column("status", sa.String(20), server_default="pending"),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
         sa.UniqueConstraint("requester_id", "receiver_id", name="uq_connection_pair"),
     )
 
     # --- Benachrichtigungen ---
-    op.create_table(
-        "notifications",
+    op.create_table("notifications",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column("user_id", postgresql.UUID(as_uuid=True),
-                  sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+        sa.Column("user_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
         sa.Column("type", sa.String(50), nullable=False),
         sa.Column("payload", postgresql.JSONB(), nullable=True),
         sa.Column("is_read", sa.Boolean(), server_default="false"),

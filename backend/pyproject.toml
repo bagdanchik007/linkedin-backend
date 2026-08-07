@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "devconnect"
-version = "0.1.0"
-description = "LinkedIn-like backend for developers"
-authors = ["Your Name <you@example.com>"]
+version = "1.0.0"
+description = "LinkedIn-like Backend für Entwickler"
+authors = ["Bohdan <you@example.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.11"

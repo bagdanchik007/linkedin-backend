@@ -7,7 +7,6 @@ services:
     ports:
       - "8000:8000"
     env_file: .env
-    # Code-Ordner einbinden für Hot-Reload
     volumes:
       - .:/app
     depends_on:

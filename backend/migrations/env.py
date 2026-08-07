@@ -11,10 +11,10 @@ from app.core.config import settings
 from app.core.database import Base
 
 # Alle Modelle importieren, damit Alembic sie erkennt
-from app.users.models import User                    # noqa: F401
-from app.auth.models import RefreshToken             # noqa: F401
-from app.profiles.models import Profile              # noqa: F401
-from app.jobs.models import Job                      # noqa: F401
+from app.users.models import User               # noqa: F401
+from app.auth.models import RefreshToken        # noqa: F401
+from app.profiles.models import Profile         # noqa: F401
+from app.jobs.models import Job                 # noqa: F401
 from app.applications.models import Application # noqa: F401
 from app.connections.models import Connection   # noqa: F401
 from app.notifications.models import Notification # noqa: F401
@@ -30,12 +30,7 @@ target_metadata = Base.metadata
 
 def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")
-    context.configure(
-        url=url,
-        target_metadata=target_metadata,
-        literal_binds=True,
-        dialect_opts={"paramstyle": "named"},
-    )
+    context.configure(url=url, target_metadata=target_metadata, literal_binds=True, dialect_opts={"paramstyle": "named"})
     with context.begin_transaction():
         context.run_migrations()
 
@@ -47,11 +42,7 @@ def do_run_migrations(connection: Connection) -> None:
 
 
 async def run_async_migrations() -> None:
-    connectable = async_engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+    connectable = async_engine_from_config(config.get_section(config.config_ini_section, {}), prefix="sqlalchemy.", poolclass=pool.NullPool)
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
     await connectable.dispose()

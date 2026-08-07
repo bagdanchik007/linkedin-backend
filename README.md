@@ -1,8 +1,8 @@
-# 🚀 DevConnect — LinkedIn Fullstack-Anwendung
+# 🚀 DevConnect — LinkedIn Backend-Anwendung
 
 > Ein LinkedIn-Klon als vollständige Fullstack-Anwendung.  
 > **Backend:** FastAPI · PostgreSQL · Redis · Celery  
-> **Frontend:** React · TypeScript · Tailwind CSS
+> **Frontend:** HTML : CSS : JS
 
 ---
 
@@ -30,7 +30,7 @@ Das Ziel ist es, potenziellen Ausbildungsbetrieben zu zeigen, dass ich in der La
 ```
 devconnect/
 ├── backend/    → REST API (FastAPI)
-└── frontend/   → Web-App (React + TypeScript)
+└── frontend/   → Web-App (HTML;CSS;JS)
 ```
 
 Die beiden Teile sind vollständig getrennt und kommunizieren über eine REST API.

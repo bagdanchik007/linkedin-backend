@@ -1,4 +1,3 @@
-# Entwicklungs-Image mit Hot-Reload
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -11,5 +10,5 @@ RUN poetry config virtualenvs.create false \
 
 COPY . .
 
-# Mit --reload für automatisches Neuladen bei Codeänderungen
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Mit --reload für automatisches Neuladen bei CodeänderungeN
+CMD sh -c "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --reload"

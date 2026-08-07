@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevConnect — LinkedIn für Entwickler</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3250;
+      --accent: #4f6ef7;
+      --accent-hover: #3a57e8;
+      --green: #22c55e;
+      --red: #ef4444;
+      --text: #e2e8f0;
+      --muted: #8892b0;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Navbar ── */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+    }
+
+    .nav-logo span { color: var(--text); }
+
+    .nav-links { display: flex; gap: 0.5rem; align-items: center; }
+
+    .nav-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 0.4rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover { border-color: var(--accent); color: var(--text); }
+    .nav-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    .nav-user {
+      display: none;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .avatar {
+      width: 32px; height: 32px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.8rem; color: #fff;
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* ── Pages ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 4rem 1rem 3rem;
+    }
+
+    .hero h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      letter-spacing: -1px;
+    }
+
+    .hero h1 span { color: var(--accent); }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.1rem;
+      max-width: 500px;
+      margin: 0 auto 2rem;
+      line-height: 1.6;
+    }
+
+    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    .btn {
+      padding: 0.75rem 1.75rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+    .btn-outline { background: none; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Features ── */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 3rem 0;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .feature-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+    .feature-card h3 { font-size: 0.95rem; margin-bottom: 0.4rem; }
+    .feature-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── API Status ── */
+    .api-status {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 2rem 0;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .status-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--muted);
+      display: inline-block;
+      margin-right: 0.5rem;
+    }
+
+    .status-dot.online { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .status-dot.offline { background: var(--red); }
+
+    /* ── Auth Forms ── */
+    .auth-wrap {
+      max-width: 420px;
+      margin: 2rem auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+    }
+
+    .auth-wrap h2 { margin-bottom: 1.5rem; font-size: 1.4rem; }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.5rem;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .tab {
+      flex: 1; padding: 0.6rem;
+      background: none; border: none;
+      color: var(--muted); cursor: pointer;
+      font-size: 0.9rem; font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .tab.active { background: var(--accent); color: #fff; }
+
+    .form-group { margin-bottom: 1rem; }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    input, textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.65rem 0.9rem;
+      color: var(--text);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, textarea:focus { border-color: var(--accent); }
+
+    .btn-full { width: 100%; margin-top: 0.5rem; padding: 0.75rem; }
+
+    /* ── Alert ── */
+    .alert {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .alert.success { background: #14532d44; border: 1px solid var(--green); color: var(--green); }
+    .alert.error { background: #7f1d1d44; border: 1px solid var(--red); color: var(--red); }
+    .alert.show { display: block; }
+
+    /* ── Dashboard ── */
+    .dash-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+    }
+
+    .stat-card .stat-num {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .stat-card .stat-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    /* ── Jobs ── */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-header h2 { font-size: 1.2rem; }
+
+    .search-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .search-bar input { flex: 1; }
+
+    .job-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 0.75rem;
+      transition: border-color 0.2s;
+      cursor: pointer;
+    }
+
+    .job-card:hover { border-color: var(--accent); }
+
+    .job-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .job-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .job-company { font-size: 0.85rem; color: var(--muted); }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: #1e3a8a33;
+      color: #93c5fd;
+      border: 1px solid #1e40af55;
+      white-space: nowrap;
+    }
+
+    .badge.green { background: #14532d33; color: #86efac; border-color: #16a34a55; }
+    .badge.red { background: #7f1d1d33; color: #fca5a5; border-color: #dc262655; }
+
+    .job-skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.75rem;
+    }
+
+    .skill-tag {
+      font-size: 0.72rem;
+      padding: 0.2rem 0.6rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--muted);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--muted);
+    }
+
+    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+
+    /* ── Swagger Banner ── */
+    .swagger-banner {
+      background: linear-gradient(135deg, #1e3a8a22, #4f6ef722);
+      border: 1px solid #4f6ef744;
+      border-radius: var(--radius);
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
+    .swagger-banner h3 { font-size: 1rem; margin-bottom: 0.25rem; }
+    .swagger-banner p { font-size: 0.85rem; color: var(--muted); }
+
+    /* ── Loader ── */
+    .loader {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+      margin-right: 0.4rem;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Profile ── */
+    .profile-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .profile-top {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .profile-avatar {
+      width: 72px; height: 72px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; font-weight: 800; color: #fff;
+      flex-shrink: 0;
+    }
+
+    .profile-info h2 { font-size: 1.3rem; margin-bottom: 0.25rem; }
+    .profile-info p { color: var(--muted); font-size: 0.875rem; }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 1.9rem; }
+      .container { padding: 1.5rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav>
+  <div class="nav-logo">Dev<span>Connect</span></div>
+  <div class="nav-links">
+    <div class="nav-user" id="navUser">
+      <div class="avatar" id="navAvatar">?</div>
+      <span id="navEmail"></span>
+      <button class="nav-btn" onclick="logout()">Abmelden</button>
+    </div>
+    <div id="navAuth">
+      <button class="nav-btn" onclick="showPage('auth')">Anmelden</button>
+    </div>
+    <button class="nav-btn" id="navJobs" onclick="showPage('jobs')" style="display:none">Stellen</button>
+    <button class="nav-btn" id="navDash" onclick="showPage('dashboard')" style="display:none">Dashboard</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════ -->
+<!-- HOME PAGE                              -->
+<!-- ══════════════════════════════════════ -->
+<div class="page active" id="page-home">
+  <div class="container">
+    <div class="hero">
+      <h1>Das <span>LinkedIn</span><br>für Entwickler</h1>
+      <p>Verbinde dich mit anderen Entwicklern, finde passende Stellen und baue dein Netzwerk auf.</p>
+      <div class="hero-btns">
+        <button class="btn btn-primary" onclick="showPage('auth')">Jetzt starten</button>
+        <button class="btn btn-outline" onclick="showPage('jobs')">Stellen ansehen</button>
+      </div>
+    </div>
+
+    <!-- API Status -->
+    <div class="api-status">
+      <div>
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">API wird geprüft…</span>
+      </div>
+      <a href="/docs" target="_blank" style="color: var(--accent); font-size: 0.85rem; text-decoration: none;">
+        📖 Swagger UI öffnen →
+      </a>
+    </div>
+
+    <!-- Features -->
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>JWT Authentifizierung</h3>
+        <p>Access + Refresh Tokens mit automatischer Rotation</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💼</div>
+        <h3>Stellenangebote</h3>
+        <p>Volltextsuche mit PostgreSQL tsvector + GIN Index</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤝</div>
+        <h3>Verbindungen</h3>
+        <p>Anfragen senden, annehmen und Netzwerk aufbauen</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <h3>Benachrichtigungen</h3>
+        <p>Echtzeit-Benachrichtigungen via Celery + Redis</p>
+      </div>
+    </div>
+
+    <!-- Swagger Banner -->
+    <div class="swagger-banner">
+      <div>
+        <h3>📡 REST API — vollständig dokumentiert</h3>
+        <p>Alle Endpunkte können direkt im Swagger UI getestet werden</p>
+      </div>
+      <a href="/docs" target="_blank">
+        <button class="btn btn-primary">Swagger UI öffnen</button>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- AUTH PAGE                             -->
+<!-- ══════════════════════════════════════ -->
+<div class="page" id="page-auth">
+  <div class="container">
+    <div class="auth-wrap">
+      <h2>Willkommen 👋</h2>
+
+      <div class="tabs">
+        <button class="tab active" id="tabLogin" onclick="switchTab('login')">Anmelden</button>
+        <button class="tab" id="tabRegister" onclick="switchTab('register')">Registrieren</button>
+      </div>
+
+      <div id="authAlert" class="alert"></div>
+
+      <!-- Login -->
+      <div id="formLogin">
+        <div class="form-group">
+          <label>E-Mail</label>
+          <input type="email" id="loginEmail" placeholder="deine@email.de" />
+        </div>
+        <div class="form-group">
+          <label>Passwort</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" />
+        </div>
+        <button class="btn btn-primary btn-full" onclick="login()">Anmelden</button>
+      </div>
+
+      <!-- Register -->
+      <div id="formRegister" style="display:none">
+        <div class="form-group">
+          <label>E-Mail</label>
+          <input type="email" id="regEmail" placeholder="deine@email.de" />
+        </div>
+        <div class="form-group">
+          <label>Passwort</label>
+          <input type="password" id="regPassword" placeholder="Mindestens 8 Zeichen" />
+        </div>
+        <button class="btn btn-primary btn-full" onclick="register()">Registrieren</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- JOBS PAGE                             -->
+<!-- ══════════════════════════════════════ -->
+<div class="page" id="page-jobs">
+  <div class="container">
+    <div class="section-header">
+      <h2>Stellenangebote</h2>
+      <span id="jobsCount" style="color: var(--muted); font-size: 0.85rem;"></span>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Suche nach Titel, Skill…" />
+      <button class="btn btn-primary" onclick="loadJobs()">Suchen</button>
+    </div>
+
+    <div id="jobsList"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- DASHBOARD PAGE                        -->
+<!-- ══════════════════════════════════════ -->
+<div class="page" id="page-dashboard">
+  <div class="container">
+    <div class="section-header">
+      <h2>Dashboard</h2>
+    </div>
+
+    <!-- Profil -->
+    <div class="profile-card" id="profileCard">
+      <div class="profile-top">
+        <div class="profile-avatar" id="dashAvatar">?</div>
+        <div class="profile-info">
+          <h2 id="dashName">Lädt…</h2>
+          <p id="dashEmail"></p>
+          <p id="dashLocation" style="margin-top: 0.25rem;"></p>
+        </div>
+      </div>
+      <div class="job-skills" id="dashSkills" style="margin-top: 1rem;"></div>
+    </div>
+
+    <!-- Statistiken -->
+    <div class="dash-grid">
+      <div class="stat-card">
+        <div class="stat-num" id="statJobs">—</div>
+        <div class="stat-label">Offene Stellen</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statApps">—</div>
+        <div class="stat-label">Meine Bewerbungen</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statConns">—</div>
+        <div class="stat-label">Verbindungen</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statNotifs">—</div>
+        <div class="stat-label">Benachrichtigungen</div>
+      </div>
+    </div>
+
+    <!-- Empfohlene Stellen -->
+    <div class="section-header">
+      <h2>Empfohlene Stellen</h2>
+    </div>
+    <div id="recommendedJobs"></div>
+
+    <div class="swagger-banner">
+      <div>
+        <h3>🔧 Alle Endpunkte testen</h3>
+        <p>Im Swagger UI kannst du alle API-Funktionen direkt ausprobieren</p>
+      </div>
+      <a href="/docs" target="_blank">
+        <button class="btn btn-outline">Swagger UI →</button>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Konfiguration ──
+  const API = '';  // Leer = gleiche Domain, oder z.B. 'https://deine-api.railway.app'
+
+  // ── Token-Verwaltung ──
+  const getToken = () => localStorage.getItem('access_token');
+  const setTokens = (access, refresh) => {
+    localStorage.setItem('access_token', access);
+    localStorage.setItem('refresh_token', refresh);
+  };
+  const clearTokens = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+  };
+
+  // ── HTTP-Hilfsfunktion ──
+  async function api(path, options = {}) {
+    const token = getToken();
+    const headers = { 'Content-Type': 'application/json', ...options.headers };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(API + path, { ...options, headers });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || `Fehler ${res.status}`);
+    }
+
+    // 204 No Content hat keinen Body
+    if (res.status === 204) return null;
+    return res.json();
+  }
+
+  // ── Seitennavigation ──
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+
+    if (name === 'jobs') loadJobs();
+    if (name === 'dashboard') loadDashboard();
+  }
+
+  // ── Auth-Tab wechseln ──
+  function switchTab(tab) {
+    document.getElementById('formLogin').style.display = tab === 'login' ? 'block' : 'none';
+    document.getElementById('formRegister').style.display = tab === 'register' ? 'block' : 'none';
+    document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+    document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+    hideAlert();
+  }
+
+  // ── Alert anzeigen ──
+  function showAlert(msg, type = 'error') {
+    const el = document.getElementById('authAlert');
+    el.textContent = msg;
+    el.className = `alert ${type} show`;
+  }
+
+  function hideAlert() {
+    document.getElementById('authAlert').className = 'alert';
+  }
+
+  // ── Nach Login UI aktualisieren ──
+  function updateNavAfterLogin(email) {
+    document.getElementById('navAuth').style.display = 'none';
+    document.getElementById('navUser').style.display = 'flex';
+    document.getElementById('navJobs').style.display = 'inline-block';
+    document.getElementById('navDash').style.display = 'inline-block';
+    document.getElementById('navEmail').textContent = email;
+    document.getElementById('navAvatar').textContent = email[0].toUpperCase();
+  }
+
+  // ── Registrierung ──
+  async function register() {
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+
+    if (!email || !password) return showAlert('Bitte alle Felder ausfüllen.');
+    if (password.length < 8) return showAlert('Passwort muss mindestens 8 Zeichen haben.');
+
+    try {
+      const data = await api('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      });
+      setTokens(data.access_token, data.refresh_token);
+      updateNavAfterLogin(email);
+      showPage('dashboard');
+    } catch (e) {
+      showAlert(e.message);
+    }
+  }
+
+  // ── Anmeldung ──
+  async function login() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    if (!email || !password) return showAlert('Bitte alle Felder ausfüllen.');
+
+    try {
+      const data = await api('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      });
+      setTokens(data.access_token, data.refresh_token);
+      updateNavAfterLogin(email);
+      showPage('dashboard');
+    } catch (e) {
+      showAlert(e.message);
+    }
+  }
+
+  // ── Abmelden ──
+  async function logout() {
+    const refresh_token = localStorage.getItem('refresh_token');
+    try {
+      await api('/auth/logout', {
+        method: 'POST',
+        body: JSON.stringify({ refresh_token }),
+      });
+    } catch (_) {}
+    clearTokens();
+    document.getElementById('navAuth').style.display = 'block';
+    document.getElementById('navUser').style.display = 'none';
+    document.getElementById('navJobs').style.display = 'none';
+    document.getElementById('navDash').style.display = 'none';
+    showPage('home');
+  }
+
+  // ── Stellen laden ──
+  async function loadJobs() {
+    const search = document.getElementById('searchInput')?.value || '';
+    const list = document.getElementById('jobsList');
+    list.innerHTML = '<div class="empty-state"><span class="loader"></span> Lädt…</div>';
+
+    try {
+      const params = search ? `?search=${encodeURIComponent(search)}` : '';
+      const data = await api('/jobs' + params);
+      const jobs = data.items || [];
+
+      document.getElementById('jobsCount').textContent = `${data.total} Stelle(n) gefunden`;
+
+      if (jobs.length === 0) {
+        list.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>Keine Stellen gefunden</p></div>';
+        return;
+      }
+
+      list.innerHTML = jobs.map(job => jobCard(job)).join('');
+    } catch (e) {
+      list.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>${e.message}</p></div>`;
+    }
+  }
+
+  // ── Job-Karte HTML ──
+  function jobCard(job) {
+    const skills = (job.skills_required || [])
+      .map(s => `<span class="skill-tag">${s}</span>`)
+      .join('');
+    const badge = job.is_active
+      ? '<span class="badge green">Aktiv</span>'
+      : '<span class="badge red">Inaktiv</span>';
+
+    return `
+      <div class="job-card">
+        <div class="job-card-top">
+          <div>
+            <div class="job-title">${job.title}</div>
+            <div class="job-company">${job.company || '—'} ${job.location ? '· ' + job.location : ''}</div>
+          </div>
+          ${badge}
+        </div>
+        ${skills ? `<div class="job-skills">${skills}</div>` : ''}
+      </div>`;
+  }
+
+  // ── Dashboard laden ──
+  async function loadDashboard() {
+    if (!getToken()) { showPage('auth'); return; }
+
+    try {
+      // Benutzerprofil laden
+      const user = await api('/users/me');
+      const profile = await api('/users/me/profile');
+
+      // Profil-Karte befüllen
+      const name = profile.full_name || user.email.split('@')[0];
+      document.getElementById('dashName').textContent = name;
+      document.getElementById('dashEmail').textContent = user.email;
+      document.getElementById('dashLocation').textContent = profile.location || '';
+      document.getElementById('dashAvatar').textContent = name[0].toUpperCase();
+
+      // Skills anzeigen
+      const skillsEl = document.getElementById('dashSkills');
+      if (profile.skills && profile.skills.length) {
+        skillsEl.innerHTML = profile.skills
+          .map(s => `<span class="skill-tag">${s}</span>`)
+          .join('');
+      }
+
+      // Statistiken laden (parallel)
+      const [jobs, apps, conns, notifs] = await Promise.allSettled([
+        api('/jobs'),
+        api('/applications/my'),
+        api('/connections/my'),
+        api('/notifications/unread-count'),
+      ]);
+
+      document.getElementById('statJobs').textContent =
+        jobs.status === 'fulfilled' ? jobs.value.total : '—';
+      document.getElementById('statApps').textContent =
+        apps.status === 'fulfilled' ? apps.value.length : '—';
+      document.getElementById('statConns').textContent =
+        conns.status === 'fulfilled' ? conns.value.length : '—';
+      document.getElementById('statNotifs').textContent =
+        notifs.status === 'fulfilled' ? notifs.value.count : '—';
+
+      // Empfohlene Stellen
+      const recEl = document.getElementById('recommendedJobs');
+      try {
+        const rec = await api('/jobs/recommended');
+        if (rec.length === 0) {
+          recEl.innerHTML = '<div class="empty-state"><div class="icon">💡</div><p>Füge Skills zu deinem Profil hinzu um Empfehlungen zu erhalten</p></div>';
+        } else {
+          recEl.innerHTML = rec.slice(0, 3).map(jobCard).join('');
+        }
+      } catch (_) {
+        recEl.innerHTML = '';
+      }
+
+    } catch (e) {
+      if (e.message.includes('401')) { clearTokens(); showPage('auth'); }
+    }
+  }
+
+  // ── API Health Check ──
+  async function checkHealth() {
+    const dot = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+    try {
+      const data = await api('/health');
+      if (data.status === 'ok') {
+        dot.className = 'status-dot online';
+        text.textContent = 'API online — Backend läuft';
+      }
+    } catch (_) {
+      dot.className = 'status-dot offline';
+      text.textContent = 'API nicht erreichbar';
+    }
+  }
+
+  // ── Start ──
+  window.addEventListener('DOMContentLoaded', () => {
+    checkHealth();
+
+    // Wenn Token vorhanden — direkt zum Dashboard
+    if (getToken()) {
+      const email = localStorage.getItem('user_email') || '';
+      // Versuche Email aus Token zu holen
+      api('/users/me').then(u => {
+        updateNavAfterLogin(u.email);
+        localStorage.setItem('user_email', u.email);
+      }).catch(() => { clearTokens(); });
+    }
+
+    // Enter-Taste für Login/Register
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const loginVisible = document.getElementById('formLogin').style.display !== 'none';
+        const authActive = document.getElementById('page-auth').classList.contains('active');
+        if (authActive) loginVisible ? login() : register();
+      }
+    });
+  });
+</script>
+</body>
+</html>
