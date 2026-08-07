@@ -11,7 +11,9 @@ from app.core.config import settings
 from app.core.database import Base
 
 # import all models so Alembic can detect them
-from app.users.models import User  # noqa: F401
+from app.users.models import User          # noqa: F401
+from app.auth.models import RefreshToken   # noqa: F401
+from app.profiles.models import Profile    # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
